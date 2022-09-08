@@ -23,8 +23,8 @@ public class mainServerImpl extends UnicastRemoteObject implements mainServer {
 		System.out.println("Mensaje recibido main: " + mens);
 		System.out.println("operacion enviada a los servidores de operaciones...");
 		try {
-			Registry registrycalc = LocateRegistry.getRegistry("10.43.100.223", 1098);
-			calcServer CS = (calcServer) registrycalc.lookup("calcServer");
+			Registry registrycalc = LocateRegistry.getRegistry("10.43.100.228", 5005);
+			calcServer CS = (calcServer) registrycalc.lookup("calcServer1");
 			String[] numeros = mens.split("\\*");
 			ms1.add(numeros[0]);
 			String temporal = numeros[1];
@@ -33,7 +33,7 @@ public class mainServerImpl extends UnicastRemoteObject implements mainServer {
 			num = CS.mensaje(ms1);
 			numS = String.valueOf(num);
 			try {
-				Registry registrycalc2 = LocateRegistry.getRegistry("10.43.100.223", 1097);
+				Registry registrycalc2 = LocateRegistry.getRegistry("10.195.45.7", 5002);
 				calcServer CS2 = (calcServer) registrycalc2.lookup("calcServer2");
 				ms2.add(numS);
 				ms2.add(numeros[1]);
@@ -58,7 +58,7 @@ public class mainServerImpl extends UnicastRemoteObject implements mainServer {
 			mainServerImpl TSI = new mainServerImpl();
 			// Incluir el objeto en el registro del RMI en el puerto 1099,
 			// para que el cliente lo pueda encontrar.
-			Registry registry = LocateRegistry.createRegistry(1099);
+			Registry registry = LocateRegistry.createRegistry(5000);
 			registry.rebind("mainServer", TSI);
 			System.out.println("Objeto -mainServer- Registrado en el RMI");
 
