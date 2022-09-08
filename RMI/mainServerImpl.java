@@ -1,55 +1,66 @@
-// **************************************
-// Servidor de Hora.
-// Los clientes se conectan y ejecutan el método getTime()
-// 
-// ****************************************************************
-
 import java.rmi.RemoteException;
 import java.rmi.NotBoundException;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.List;
 
 public class mainServerImpl extends UnicastRemoteObject implements mainServer {
 
-	int numero = 0;
+	int num = 0;
+	String numS;
+	List<String> ms1 = new ArrayList<String>();
+	List<String> ms2 = new ArrayList<String>();
+	String[] mens;
 
 	protected mainServerImpl() throws RemoteException {
 		System.out.println("Arrancando Servidor de calculo...");
 	}
 
-	public int getTime(int num) throws RemoteException {
-		System.out.println("Mensaje recibido: " + num);
+	public int getOperation(String mens) throws RemoteException {
+		System.out.println("Mensaje recibido main: " + mens);
 		System.out.println("operacion enviada a los servidores de operaciones...");
 		try {
-			Registry registrycalc = LocateRegistry.getRegistry("192.168.56.1", 1098);
+			Registry registrycalc = LocateRegistry.getRegistry("10.43.100.223", 1098);
+			calcServer CS = (calcServer) registrycalc.lookup("calcServer");
+			String[] numeros = mens.split("\\*");
+			ms1.add(numeros[0]);
+			String temporal = numeros[1];
+			numeros = temporal.split("\\+");
+			ms1.add(numeros[0]);
+			num = CS.mensaje(ms1);
+			numS = String.valueOf(num);
+			try {
+				Registry registrycalc2 = LocateRegistry.getRegistry("10.43.100.223", 1097);
+				calcServer CS2 = (calcServer) registrycalc2.lookup("calcServer2");
+				ms2.add(numS);
+				ms2.add(numeros[1]);
+				num = CS2.mensaje(ms2);
+			} catch (NotBoundException e) {
+				System.out.println("Calc Server no se encontró en el registro");
+				System.exit(0);
+			}
 
-			calcServer1 CS = (calcServer1) registrycalc.lookup("calcServer1");
-
-			numero = CS.mensaje(num);
 		} catch (NotBoundException e) {
-			System.out.println("Time Server no se encontró en el registro");
+			System.out.println("Calc Server no se encontró en el registro");
 			System.exit(0);
 		}
-		return numero;
+		return num;
 	}
 
 	// Arranque del Servidor de Hora
 
 	public static void main(String[] args) {
-
 		try {
-
 			// Crear el objeto cuyos métodos el cliente podrá usar
 			mainServerImpl TSI = new mainServerImpl();
-
 			// Incluir el objeto en el registro del RMI en el puerto 1099,
 			// para que el cliente lo pueda encontrar.
-
 			Registry registry = LocateRegistry.createRegistry(1099);
-			registry.rebind("timeServer", TSI);
-			System.out.println("Objeto -timeServer- Registrado en el RMI");
+			registry.rebind("mainServer", TSI);
+			System.out.println("Objeto -mainServer- Registrado en el RMI");
 
 		} catch (RemoteException e) {
 			System.out.println("Error: " + e);
